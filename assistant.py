@@ -469,7 +469,7 @@ def signal_handler(signal, frame):
     print("Pressed CTRL+C")
     sys.exit(0)
 
-
+# changed the entrypoint from assistent to own main method
 def main():
     signal.signal(signal.SIGINT, signal_handler)
     global CONT
@@ -492,7 +492,6 @@ def main():
                 t2.start()
                 t2.join()
                 playAssistantResponse()
-                print(CONT)
                 if not CONT:
                     break
 
