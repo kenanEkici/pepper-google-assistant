@@ -13,47 +13,102 @@
 <body>
   <script type="text/javascript">
       $(document).ready(function() {
+        $("#peppersyn").click(function() {
+          $.post({
+            url: document.location.origin + "/pepper",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify({input: $("#pepper").val()})
+          });
+        });
+        $("#gttsyn").click(function() {
+          $.post({
+            url: document.location.origin + "/gtts",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify({input: $("#gtts").val()}),
+            success: function() { playPepper() }
+          });
+        });
+        $("#gcloudsyn").click(function() {
+          $.post({
+            url: document.location.origin + "/gcloud",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify({
+              "audioConfig": {
+                "audioEncoding": "LINEAR16",
+                "pitch": $("#pitch").val(),
+                "speakingRate": $("#speakingRate").val()
+              },
+              "input": {
+                "text": $("#gcloud").val()
+              },
+              "voice": {
+                "languageCode": $("#languageCode").val(),
+                "name": $("#voiceName").val()
+              }
+            }),
+            success: function() { playPepper() }
+          });
+        });
 
+        function playPepper() {
+          $.get(document.location.origin + "/playpepper")
+        }
+
+        function playLocal() {
+          $.get(document.location.origin + "/playmlocal")
+        }
       });
   </script>
       <main role="main" class="container">
       <div class="col-md-12 col-sm-12">
         <br><br>
         <h1>Text-to-Speech dashboard</h1>
+        <br>
         <div class="form-group">
-          <label>Pepper Text-to-Speech </label>
-          <textarea class="form-control" rows="3" id="pepper"></textarea>
+          <h4>Pepper Text-to-Speech</h4>
+          <textarea class="form-control" rows="1" id="pepper"></textarea>
           <br>
-          <button class="btn btn-light" type="button">Synthesize</button>
+          <button id="peppersyn" class="btn btn-dark" type="button">Synthesize</button>
         </div>
         <br>
         <div class="form-group">
-          <label>GTTS Text-to-Speech </label>
-          <textarea class="form-control" rows="3" id="gtts"></textarea>
+          <h4>GTTS Text-to-Speech </h4>
+          <textarea class="form-control" rows="1" id="gtts"></textarea>
           <br>
-          <button class="btn btn-light" type="button">Synthesize</button>
+          <button id="gttsyn" class="btn btn-dark" type="button">Synthesize</button>
         </div>
         <br>
         <div class="form-group">
-          <label>Google Cloud Text-to-Speech </label>
-          <textarea class="form-control" rows="3" id="gcloud"></textarea>
-          <select id="languageCode">
+          <h4>Google Cloud Text-to-Speech </h4>
+          <textarea class="form-control" rows="1" id="gcloud"></textarea>
+          <br>
+          <select class="form-control" id="languageCode">
             <option value="en-US">English (US)</option>
             <option value="nl-NL">Nederlands (NL)</option>
           </select>
-          <select id="voiceName">
-            <option value="en-US-Standard-A">EN_US_A</option>
-            <option value="en-US-Standard-B">EN_US_B</option>
-            <option value="en-US-Standard-C">EN_US_C</option>
-            <option value="en-US-Standard-D">EN_US_D</option>
-            <option value="en-US-Standard-E">EN_US_E</option>
-            <option value="en-US-Standard-F">EN_US_F</option>
+          <br>
+          <select class="form-control" id="voiceName">
+            <option value="en-US-WAVENET-A">EN_US_A</option>
+            <option value="en-US-WAVENET-B">EN_US_B</option>
+            <option value="en-US-WAVENET-C">EN_US_C</option>
+            <option value="en-US-WAVENET-D">EN_US_D</option>
+            <option selected value="en-US-WAVENET-E">EN_US_E</option>
+            <option value="en-US-WAVENET-F">EN_US_F</option>
             <option value="nl-NL-Standard-A">NL_BASIC</option>
           </select>
-          <label>Speed</label><input id="speakingRate" type="number" max="4" min="0,25">
-          <label>Pitch</label><input id="pitch" type="number" max="20" min="-20">
           <br>
-          <button class="btn btn-light" type="button">Synthesize</button>
+          <div>
+            <label>Speed  :</label><input id="speakingRate" value="1" type="number" max="4" min="0,25">
+            <label>Pitch  :</label><input id="pitch" value="0" type="number" max="20" min="-20">
+          </div>
+          <br>
+          <button id="gcloudsyn" class="btn btn-dark" type="button">Synthesize</button>
         </div>
     </div>
     </main>

@@ -38,7 +38,7 @@ from google.assistant.embedded.v1alpha2 import (
 )
 from tenacity import retry, stop_after_attempt, retry_if_exception
 from helpers import assistant_helpers, audio_helpers, browser_helpers, device_helpers
-from webserver import startserver, play, handle_message
+from webserver import startserver, playstream, handle_message
 
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
