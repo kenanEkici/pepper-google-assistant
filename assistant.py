@@ -38,7 +38,7 @@ from google.assistant.embedded.v1alpha2 import (
 )
 from tenacity import retry, stop_after_attempt, retry_if_exception
 from helpers import assistant_helpers, audio_helpers, browser_helpers, device_helpers
-from webserver import startserver, playstream, handle_message
+from webserver import startserver, playAssistantResponse, handle_message
 
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
@@ -441,7 +441,9 @@ def assistant(api_endpoint, credentials, project_id,
                          conversation_stream, display,
                          grpc_channel, grpc_deadline,
                          device_handler) as assistant:
-        return assistant.assist()
+        global CONT
+        CONT = assistant.assist()
+        return
 
 
 def get_transcript(speech_results):
@@ -489,7 +491,8 @@ def main():
                 t2 = Thread(target=assistant)
                 t2.start()
                 t2.join()
-                play()
+                playAssistantResponse()
+                print(CONT)
                 if not CONT:
                     break
 

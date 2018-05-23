@@ -13,6 +13,7 @@ from threading import Thread
 my_server = Flask(__name__)
 socketio = SocketIO(my_server)
 stream = None
+wavstream = None
 pepper = None
 host = None
 port = None
@@ -68,6 +69,11 @@ def streammp3():
     return send_file('syn.mp3', cache_timeout=0)
 
 
+@my_server.route("/wavstream", methods=['GET'])
+def streamwav():
+    return send_file('syn.wav', cache_timeout=0)
+
+
 def handle_message(msg_type, msg):
     socketio.emit(msg_type, msg)
 
@@ -77,9 +83,14 @@ def playPepper():
     audio.playWebStream(stream, 1, 0)
 
 
-def startserver():    
+def playAssistantResponse():
+    audio = ALProxy("ALAudioPlayer", pepper, 9559)
+    audio.playWebStream(wavstream, 1, 0)
+
+
+def startserver():
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    global stream, pepper, host, port
+    global stream, wavstream, pepper, host, port
     config = configparser.ConfigParser()
     config.read('config.ini')
 
@@ -87,6 +98,7 @@ def startserver():
     port = config['IP']['Port']
 
     stream = "http://" + str(host) + ":" + str(port) + "/stream"
+    wavstream = "http://" + str(host) + ":" + str(port) + "/wavstream"
     pepper = str(config['IP']['Robot'])
 
     print("API is running")
