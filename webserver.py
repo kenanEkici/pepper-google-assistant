@@ -8,6 +8,7 @@ import base64
 from naoqi import ALProxy
 from flask_socketio import SocketIO
 from threading import Thread
+from playsound import playsound
 
 
 my_server = Flask(__name__)
@@ -41,7 +42,7 @@ def pepper():
 def gtts():
     req = request.json.get('input')
     tts = gTTS(text=req, lang='en')
-    tts.save("syn.mp3")
+    tts.save("/tmp/syn.mp3")
     return "success"
 
 
@@ -52,7 +53,7 @@ def gcloud():
     }
     resp = requests.post("https://cxl-services.appspot.com/proxy?url=https%3A%2F%2Ftexttospeech.googleapis.com%2Fv1beta1%2Ftext%3Asynthesize", headers=headers, data=json.dumps(request.get_json()))
     r = resp.json().get('audioContent')
-    with open("syn.mp3", 'w') as file:
+    with open("/tmp/syn.mp3", 'w') as file:
         file.write(base64.decodestring(r))
     return "success"
 
@@ -66,12 +67,12 @@ def playstream():
 
 @my_server.route("/stream", methods=['GET'])
 def streammp3():
-    return send_file('syn.mp3', cache_timeout=0)
+    return send_file('/tmp/syn.mp3', cache_timeout=0)
 
 
 @my_server.route("/wavstream", methods=['GET'])
 def streamwav():
-    return send_file('syn.wav', cache_timeout=0)
+    return send_file('/tmp/syn.wav', cache_timeout=0)
 
 
 def handle_message(msg_type, msg):
