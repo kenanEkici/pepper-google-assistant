@@ -38,7 +38,7 @@ from google.assistant.embedded.v1alpha2 import (
 )
 from tenacity import retry, stop_after_attempt, retry_if_exception
 from helpers import assistant_helpers, audio_helpers, browser_helpers, device_helpers
-from webserver import startserver, playAssistantResponse, handle_message
+from webserver import start_server, play_asistant_response, emit_socket
 
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
@@ -47,6 +47,8 @@ DIALOG_FOLLOW_ON = embedded_assistant_pb2.DialogStateOut.DIALOG_FOLLOW_ON
 CLOSE_MICROPHONE = embedded_assistant_pb2.DialogStateOut.CLOSE_MICROPHONE
 PLAYING = embedded_assistant_pb2.ScreenOutConfig.PLAYING
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
+
+# additional variables
 CONT = None
 OUTPUT = None
 
@@ -154,8 +156,8 @@ class SampleAssistant(object):
                     logging.info('Playing assistant response.')
                 self.conversation_stream.write(resp.audio_out.audio_data)
                 if len(all_results) > 0 and is_played is False:
-                    handle_message("output", all_results[-1])
-                    handle_message("message", output)
+                    emit_socket("output", all_results[-1])
+                    emit_socket("message", output)
                     is_played = True
             if resp.dialog_state_out.conversation_state:
                 conversation_state = resp.dialog_state_out.conversation_state
@@ -296,6 +298,7 @@ class SampleAssistant(object):
               help='gRPC deadline in seconds')
 @click.option('--once', default=False, is_flag=True,
               help='Force termination after a single conversation.')
+# changed method name from main to assistant
 def assistant(api_endpoint, credentials, project_id,
          device_model_id, device_id, device_config,
          lang, display, verbose,
@@ -350,7 +353,8 @@ def assistant(api_endpoint, credentials, project_id,
                 flush_size=audio_flush_size
             )
         )
-    output_audio_file = "syn.wav"
+    # hardcoding output file
+    output_audio_file = "/tmp/syn.wav"
     if output_audio_file:
         audio_sink = audio_helpers.WaveSink(
             open(output_audio_file, 'wb'),
@@ -440,23 +444,29 @@ def assistant(api_endpoint, credentials, project_id,
     with SampleAssistant(lang, device_model_id, device_id,
                          conversation_stream, display,
                          grpc_channel, grpc_deadline,
-                         device_handler) as assistant:
+                         device_handler) as ast:
+        # assistant will only run once and write response to output wav file
+        # if the request is a follow up, it returns True else False
         global CONT
-        CONT = assistant.assist()
+        CONT = ast.assist()
         return
 
 
+# additonal method for returning transcript from grpc response
 def get_transcript(speech_results):
         for r in speech_results:
             return r.transcript
 
 
+# additional method for filtering whitespace response and
+# returning non whitespace response
 def filter_output(out):
         if len(out) is not 0:
             global output
             output = out
 
 
+# snowboy will start listening for the "Pepper" hotword
 def snowboy():
     global detector
     model = "pepper.pmdl"
@@ -465,9 +475,11 @@ def snowboy():
     detector.terminate()
 
 
+# kill the process
 def signal_handler(signal, frame):
     print("Pressed CTRL+C")
     sys.exit(0)
+
 
 # changed the entrypoint from assistent to own main method
 def main():
@@ -476,11 +488,11 @@ def main():
     print('Input "Yes" to continue with Google Assistant\n')
     assist = raw_input()
     if assist != "Yes":
-        t1 = Thread(target=startserver)
+        t1 = Thread(target=start_server)
         t1.start()
         t1.join()
     else:
-        thread.start_new_thread(startserver, ())
+        thread.start_new_thread(start_server, ())
         while True:
             print("Snowboy listening")
             t1 = Thread(target=snowboy)
@@ -491,7 +503,7 @@ def main():
                 t2 = Thread(target=assistant)
                 t2.start()
                 t2.join()
-                playAssistantResponse()
+                play_asistant_response()
                 if not CONT:
                     break
 

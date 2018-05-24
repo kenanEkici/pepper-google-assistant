@@ -16,11 +16,11 @@
           var socket = io.connect('http://192.168.3.197:3000');
 
           socket.on('message', function(msg) {
-              $("#dashboard").append('<li class="right message">'+msg+'</li>')
+              $("#dashboard").append('<li class="left message">'+msg+'</li>')
           });
 
           socket.on('output', function(msg) {
-              $("#dashboard").append('<li class="left message">'+msg+'</li>')
+              $("#dashboard").append('<li class="right message">'+msg+'</li>')
           });
       });
   </script>

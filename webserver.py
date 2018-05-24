@@ -8,7 +8,6 @@ import base64
 from naoqi import ALProxy
 from flask_socketio import SocketIO
 from threading import Thread
-from playsound import playsound
 
 
 my_server = Flask(__name__)
@@ -33,16 +32,16 @@ def tts():
 @my_server.route("/pepper", methods=['POST'])
 def pepper():
     req = request.json.get('input')
-    tts = ALProxy("ALTextToSpeech", pepper, 9559)
-    tts.say(str(req))
+    altts = ALProxy("ALTextToSpeech", pepper, 9559)
+    altts.say(str(req))
     return "success"
 
 
 @my_server.route("/gtts", methods=['POST'])
 def gtts():
     req = request.json.get('input')
-    tts = gTTS(text=req, lang='en')
-    tts.save("/tmp/syn.mp3")
+    googletts = gTTS(text=req, lang='en')
+    googletts.save("/tmp/syn.mp3")
     return "success"
 
 
@@ -60,36 +59,36 @@ def gcloud():
 
 @my_server.route("/playpepper", methods=['GET'])
 def playstream():
-    t = Thread(target=playPepper)
+    t = Thread(target=play_pepper)
     t.start()
     return "success"
 
 
 @my_server.route("/stream", methods=['GET'])
-def streammp3():
+def stream_mp3():
     return send_file('/tmp/syn.mp3', cache_timeout=0)
 
 
 @my_server.route("/wavstream", methods=['GET'])
-def streamwav():
+def stream_wav():
     return send_file('/tmp/syn.wav', cache_timeout=0)
 
 
-def handle_message(msg_type, msg):
+def emit_socket(msg_type, msg):
     socketio.emit(msg_type, msg)
 
 
-def playPepper():
+def play_pepper():
     audio = ALProxy("ALAudioPlayer", pepper, 9559)
     audio.playWebStream(stream, 1, 0)
 
 
-def playAssistantResponse():
+def play_asistant_response():
     audio = ALProxy("ALAudioPlayer", pepper, 9559)
     audio.playWebStream(wavstream, 1, 0)
 
 
-def startserver():
+def start_server():
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     global stream, wavstream, pepper, host, port
     config = configparser.ConfigParser()
