@@ -31,7 +31,7 @@ import grpc
 import google.auth.transport.grpc
 import google.auth.transport.requests
 import google.oauth2.credentials
-import snowboydecoder
+from snowboy import snowboydecoder
 from google.assistant.embedded.v1alpha2 import (
     embedded_assistant_pb2,
     embedded_assistant_pb2_grpc
@@ -469,7 +469,7 @@ def filter_output(out):
 # snowboy will start listening for the "Pepper" hotword
 def snowboy():
     global detector
-    model = "pepper.pmdl"
+    model = "./snowboy/pepper.pmdl"
     detector = snowboydecoder.HotwordDetector(model, sensitivity=0.5)
     detector.start()
     detector.terminate()
