@@ -7,8 +7,7 @@ __pycache__/
 *.so
 
 # response
-syn.wav
-syn.mp3
+snowboy/
 
 # Distribution / packaging
 .Python
