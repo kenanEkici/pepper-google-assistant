@@ -8,6 +8,8 @@ import base64
 from naoqi import ALProxy
 from flask_socketio import SocketIO
 from threading import Thread
+import pyaudio
+import wave
 
 
 my_server = Flask(__name__)
@@ -27,6 +29,43 @@ def root():
 @my_server.route("/texttospeech", methods=['GET'])
 def tts():
     return render_template('tts.html')
+
+
+@my_server.route("/speechtotext", methods=['GET'])
+def stt():
+    return render_template('stt.html')
+
+
+@my_server.route("/googlestt", methods=['POST'])
+def gsst():
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    start_record()
+    with open('/tmp/input.wav', 'rb') as f1:
+        content = base64.b64encode(f1.read())
+
+    dic = {
+        "config": {
+            "encoding": "LINEAR16",
+            "languageCode": "en-US",
+            "enableAutomaticPunctuation": 'true',
+            "sampleRateHertz": 16000,
+            "model": "default"
+        },
+
+        "audio": {
+            "content": content
+        }
+    }
+
+    resp = requests.post(
+        "https://cxl-services.appspot.com/proxy?url=https%3A%2F%2Fspeech.googleapis.com%2Fv1p1beta1%2Fspeech%3Arecognize",
+        headers=headers, data=json.dumps(dic))
+    json_data = resp.json()
+    transcript = json_data['results'][0]['alternatives'][0]['transcript']
+    socketio.emit('inputmsg', transcript)
+    return 'success'
 
 
 @my_server.route("/pepper", methods=['POST'])
@@ -58,7 +97,7 @@ def gcloud():
 
 
 @my_server.route("/playpepper", methods=['GET'])
-def playstream():
+def play_stream():
     t = Thread(target=play_pepper)
     t.start()
     return "success"
@@ -86,6 +125,38 @@ def play_pepper():
 def play_asistant_response():
     audio = ALProxy("ALAudioPlayer", pepper, 9559)
     audio.playWebStream(wavstream, 1, 0)
+
+
+def start_record():
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 16000
+    CHUNK = 1024
+    RECORD_SECONDS = 10
+    WAVE_OUTPUT_FILENAME = "/tmp/input.wav"
+    audio = pyaudio.PyAudio()
+
+    # start recording
+    wav_stream = audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+    print "recording..."
+    frames = []
+
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+        data = wav_stream.read(CHUNK)
+        frames.append(data)
+    print "finished recording"
+
+    # stop recording
+    wav_stream.stop_stream()
+    wav_stream.close()
+    audio.terminate()
+
+    wave_file = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    wave_file.setnchannels(CHANNELS)
+    wave_file.setsampwidth(audio.get_sample_size(FORMAT))
+    wave_file.setframerate(RATE)
+    wave_file.writeframes(b''.join(frames))
+    wave_file.close()
 
 
 def start_server():

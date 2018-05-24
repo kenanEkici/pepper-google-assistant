@@ -1,0 +1,33 @@
+gestures = [['animations/Stand/Gestures/Hey_1', 'animations/Stand/Gestures/Hey_1'],
+            ['animations/Stand/Gestures/IDontKnow_1'],
+            ['animations/Stand/Gestures/Me_1', 'animations/Stand/Gestures/You_1'],
+            ['animations/Stand/Gestures/Please_1'],
+            ['animations/Stand/Gestures/Nothing_2'],
+            ['animations/Stand/Gestures/Everything_1'],
+            ['animations/Stand/Gestures/Yes_1'],
+            ['animations/Stand/Gestures/CalmDown_1', 'animations/Stand/Gestures/Desperate_1', 'animations/Stand/Gestures/Desperate_2', 'animations/Stand/Gestures/Desperate_4', 'animations/Stand/Gestures/Desperate_5'],
+            ['animations/Stand/Gestures/Think_1'],
+            ['animations/Stand/Gestures/Happy_4'],
+            ['animations/Stand/Gestures/Yes_1', 'animations/Stand/Gestures/Yes_2', 'animations/Stand/Gestures/Yes_3'],
+            ['animations/Stand/Gestures/Explain_1', 'animations/Stand/Gestures/Explain_2', 'animations/Stand/Gestures/Explain_3', 'animations/Stand/Gestures/Explain_4', 'animations/Stand/Gestures/Explain_5', 'animations/Stand/Gestures/Explain_6', 'animations/Stand/Gestures/Explain_7', 'animations/Stand/Gestures/Explain_8', 'animations/Stand/Gestures/Explain_10', 'animations/Stand/Gestures/Explain_11'],
+            ['animations/Stand/Waiting/Think_1', 'animations/Stand/Waiting/Think_2', 'animations/Stand/Waiting/Think_3']]
+
+
+    def animation_pepper(self, gesture, session):
+        animation_player_service = session.service("ALAnimationPlayer")
+        print('test1')
+        if 'hi' in gesture or 'hey' in gesture:
+            print('test2')
+            gest = gestures[0][randint(0, len(gestures[0]) - 1)]
+            animation_player_service.run(gest, _async=True)
+
+
+
+    def naoqi_session(self):
+        session = qi.Session()
+        try:
+            session.connect("tcp://" + '192.168.3.146' + ":" + '9559')
+        except RuntimeError:
+            print ("Can't connect to Naoqi")
+            sys.exit(1)
+        return session
