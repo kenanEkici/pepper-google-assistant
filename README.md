@@ -13,4 +13,5 @@ We had also developed a simple front end to either follow the interaction betwee
 
 ### Notes
 
-If you are interested in this solution at all, please add an issue. I would love to write an extended howto for this repository. 
+Please refer to the included PDF "thesis_kenan_ekici" for my bachelor thesis with a more detailed description of the project and its foundations. 
+
