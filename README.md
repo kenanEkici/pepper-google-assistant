@@ -13,5 +13,5 @@ We had also developed a simple front end to either follow the interaction betwee
 
 ### Notes
 
-Please refer to the included PDF "thesis_kenan_ekici" for my bachelor thesis with a more detailed description of the project and its foundations. 
+Please refer to the included PDF "Bachelor_thesis_kenan_ekici" for my bachelor thesis with a more detailed description of the project and its foundations. 
 
