@@ -13,5 +13,5 @@ We had also developed a simple front end to either follow the interaction betwee
 
 ### Notes
 
-Please refer to the included PDF "Bachelor_thesis_kenan_ekici" for my bachelor thesis with a more detailed description of the project and its foundations. 
+Please refer to the my bachelor thesis [Teach Robots to speak: Text 2 Speech Solutions for Robotics](https://www.researchgate.net/publication/359379920_Teach_Robots_to_speak_Text_2_Speech_Solutions_for_Robotics) for more details about this project. 
 
